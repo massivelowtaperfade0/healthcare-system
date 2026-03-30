@@ -1,0 +1,24 @@
+###
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+    "email": "john@user.com",
+    "password": "John9999"
+}
+
+#ac = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNzc5ZjFjMS03ZTc1LTRjYzAtODUzZi05NTZiYTRlZWRlOGMiLCJlbWFpbCI6ImpvaG5AdXNlci5jb20iLCJqdGkiOiI5ZTAwYzI0MC1kYTU2LTQ4ZTktYWY5ZC04ZDM0ZDQzZjRhYTUiLCJvcmdzIjpbIjNiNTI0YzIwLTMyZDgtNDk5Ny05MTQxLTUzZDBlZThjYTdiOCJdLCJpYXQiOjE3NzQ2NzE4MDEsImV4cCI6MTc3NDY3MjcwMX0.biS4vih4DzBXSJ8Tq-FPch5YgR87F2ERvubjH2ZXyaM'
+
+###
+POST http://localhost:5000/attachment/request-upload
+Content-Type: application/json
+x-org-id: 3b524c20-32d8-4997-9141-53d0ee8ca7b8
+Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNzc5ZjFjMS03ZTc1LTRjYzAtODUzZi05NTZiYTRlZWRlOGMiLCJlbWFpbCI6ImpvaG5AdXNlci5jb20iLCJqdGkiOiI3Y2ViNWFlMC01YjVhLTRmMTEtOTlmMC0xOTBlMGQ2NzllZWYiLCJvcmdzIjpbIjNiNTI0YzIwLTMyZDgtNDk5Ny05MTQxLTUzZDBlZThjYTdiOCJdLCJpYXQiOjE3NzQ2NzU2MDAsImV4cCI6MTc3NDY3NjUwMH0.v_m696A3N9x3c68M6fwBkLl-jdMSJhto9U8gbFQhBbc; Path=/; HttpOnly; SameSite=Lax,refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNzc5ZjFjMS03ZTc1LTRjYzAtODUzZi05NTZiYTRlZWRlOGMiLCJlbWFpbCI6ImpvaG5AdXNlci5jb20iLCJqdGkiOiI3Y2ViNWFlMC01YjVhLTRmMTEtOTlmMC0xOTBlMGQ2NzllZWYiLCJpYXQiOjE3NzQ2NzU2MDAsImV4cCI6MTc3NTI4MDQwMH0.oC4Ozn36P6H169o4yPw46J8JbaYtpVEH9uIuN8OT7s4; Path=/; HttpOnly; SameSite=Lax
+
+{
+    "patientId":"testPatientUUID",
+    "fileName":"testFile",
+    "mimeType":"PDF",
+    "recordId":"testRecordUUID",
+    "fileSize":1
+}

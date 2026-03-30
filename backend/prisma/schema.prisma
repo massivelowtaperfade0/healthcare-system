@@ -1,0 +1,385 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  DOCTOR
+  NURSE
+  PATIENT
+}
+
+enum RecordType {
+  SOAP
+  LAB_REPORT
+  SURGERY_SUMMARY
+  PEDIATRIC_VITAL
+}
+
+enum EventType {
+  AUTH_LOGIN_SUCCESS
+  AUTH_LOGIN_FAILED
+  AUTH_LOGOUT
+  AUTH_SESSION_REVOKED
+  AUTH_PASSWORD_CHANGED
+  ADMIN_PASSWORD_CHANGED
+  ATTEMPTED_PASSWORD_CHANGE
+
+  NEW_ORGANIZATION_CREATED
+  NEW_ADMIN_CREATED
+
+  PATIENT_RECORD_CREATED
+  PATIENT_RECORD_UPDATED
+  PATIENT_RECORD_LINKED
+
+  MEMBER_CREATED
+  MEMBER_STATUS_UPDATE
+
+  PE_VIOLATION_HORIZONTAL
+  PE_VIOLATION_VERTICAL
+
+  SECURITY_IP_BANNED
+  SECURITY_ANOMALY_DETECTED
+  SECURITY_RATE_LIMIT_HIT
+
+  NEW_FILE_UPLOADED
+  FILE_UPLOAD_REJECTED
+  FILE_DOWNLOADED
+  FILE_DOWNLOAD_REJECTED
+  FILE_ACCESSED
+  FILE_ACCESS_REJECTED
+
+  RECORD_READ_AUTHORIZED
+  RECORD_READ_DENIED
+
+  RECORD_LOCKED
+  RECORD_UNLOCKED
+
+  RECORD_UPDATE_AUTHORIZED
+  RECORD_UPDATE_UNAUTHORIZED
+
+  RECORD_WRITE_AUTHORIZED
+  RECORD_WRITE_DENIED
+
+  RECORD_EXPORTED
+}
+
+enum AppointmentStatus {
+  PENDING
+  BOOKED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  REFUNDED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ON_LEAVE
+  TERMINATED
+}
+
+model Appointment {
+  id String @id @default(uuid())
+  reason String
+  status AppointmentStatus @default(PENDING)
+  scheduledAt DateTime
+
+  patientId String
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model RefreshToken {
+  id String @id @default(uuid())
+  tokenHash String @unique
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  lastAccessedAt DateTime?
+  revokedAt DateTime?
+  ip String?
+  userAgent String?
+}
+
+model Membership {
+  id String @id @default(uuid())
+  status MembershipStatus @default(ACTIVE)
+  role UserRole @default(PATIENT)
+
+  isExclusive Boolean @default(true)
+
+  activatedAt DateTime @default(now())
+  lastStatusChanged DateTime @default(now())
+
+  statusChangedById String?
+  statusChangeReason String? @db.Text
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  localFailedLogins Int @default(0)
+
+  @@unique([userId, organizationId])
+  @@index([status])
+}
+
+model Organization {
+  id String @id @default(uuid())
+  name String @unique
+  city String
+  state String
+  country String
+  
+  totalRevenue  Decimal   @default(0) @db.Decimal(12,2)
+  activePatientCount  Int @default(0)
+  failedLoginTotal    Int @default(0)
+  activeStaffCount    Int @default(0)
+  
+  patient Patient[]
+  attachments Attachment[]
+  memberships Membership[]
+  appointments Appointment[]
+  medicalRecord MedicalRecord[]
+  activityLog ActivityLog[]
+  billingRecords Billing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Billing {
+  id String @id @default(uuid())
+  amount Decimal @db.Decimal(10,2)
+  status PaymentStatus @default(UNPAID)
+  description String?
+
+  patientId String
+  patient Patient @relation(fields: [patientId], references: [id])
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime  @default(now())
+}
+
+model User {
+  id              String        @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String        @unique
+  phoneNumber     String?  
+  hash            String
+
+  failedLoginCount Int @default(0)
+  lockUntil       DateTime?
+
+  isGlobalStaff   Boolean       @default(false)
+     
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt 
+
+  memberships Membership[]
+  bannedIp BannedIP[]
+  refreshToken RefreshToken[]
+  patient Patient[]
+  staffProfile StaffProfile[]
+  activity ActivityLog[]
+  // medicalRecord MedicalRecord[]
+  // report Report[]
+  // @@unique([email, organizationId])
+  // @@index([organizationId])
+}
+
+model StaffProfile {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  licenseNumber String @unique
+  specialty String?
+  bio String?
+  isVerified Boolean @default(false)
+
+  medicalRecordsCreated MedicalRecord[]
+  attachments Attachment[]
+}
+
+model Patient {
+  id String @id @default(uuid())
+  puid String 
+
+  firstName String
+  lastName String
+  dateOfBirth DateTime
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId  String
+  user User? @relation(fields: [userId], references: [id])
+  userId String? 
+
+  claimCodeHash String?
+  claimCodeExpires DateTime?
+
+  admittedAt      DateTime
+  dischargeAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  medicalRecord MedicalRecord[]
+  attachments Attachment[]
+  appointments Appointment[]
+  billings Billing[]
+
+  @@index([organizationId])
+  @@index([puid])
+  @@unique([puid, organizationId])
+  @@unique([userId, organizationId])
+}
+
+model MedicalRecord {
+  id String @id @default(uuid())
+  patient Patient @relation(fields: [patientId], references: [id])
+  patientId String
+  
+  type RecordType @default(SOAP)
+  content Json
+
+  isLocked Boolean @default(false)
+  lockedById String?
+  unlockedById String?
+  version Int @default(1)
+  signedAt DateTime?
+
+  // doctor Doctor @relation(fields: [doctorId], references: [id])
+  // doctorId String
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId  String
+  // createdBy User @relation(fields: [createdById], references: [id])
+  // createdById String
+
+  staffProfileId String
+  staffProfile StaffProfile @relation(fields: [staffProfileId], references: [id])
+
+  attachments Attachment[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  // StaffProfile StaffProfile[]
+
+  @@index([organizationId])
+  @@index([patientId])
+}
+
+model Attachment {
+  id String @id @default(uuid())
+
+  recordId String
+  record MedicalRecord @relation(fields: [recordId], references: [id])
+  patientId String
+  patient Patient @relation(fields: [patientId], references: [id])
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  fileKey String
+  fileName String
+  fileSize Int
+  mimeType String
+  hash String? //file integrity check
+
+  uploadedById String
+  uploader StaffProfile @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([recordId])
+  @@index([organizationId])
+}
+
+model ActivityLog {
+  id Int @id @default(autoincrement())
+  user User? @relation(fields: [userId], references: [id])
+  userId String?
+  eventType EventType
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  ip String?
+  userAgent String?
+  metadata Json? @db.JsonB
+  createdAt DateTime @default(now())
+
+  @@index([organizationId, eventType])
+  @@index([userId, createdAt])
+}
+
+
+model BannedIP {
+  id String @id @default(uuid()) 
+  ip String @unique
+  reason String?
+  bannedAt DateTime @default(now())
+  expiresAt DateTime?
+  createdBy User? @relation(fields: [createdById], references: [id])
+  createdById String?
+}
+
+// model Report {
+//   id Int @id @default(autoincrement())
+//   user User @relation(fields: [userId], references: [id])
+//   userId String
+//   reason String?
+//   createdAt DateTime @default(now())
+// }
+
+// model Doctor {
+//   id String @id @default(uuid())
+//   firstName String
+//   lastName String
+//   Major String
+//   Stream String
+//   organization Organization @relation(fields: [organizationId], references: [id])
+//   organizationId  String
+//   joinedAt DateTime?
+//   createdAt       DateTime      @default(now())
+//   updatedAt        DateTime      @updatedAt
+
+//   medicalRecord MedicalRecord[]
+// }
+
+// model Nurse {
+//   id String @id @default(uuid())
+//   firstName String
+//   lastName String
+//   organization Organization @relation(fields: [organizationId], references: [id])
+//   organizationId  String
+//   joinedAt DateTime?
+//   createdAt       DateTime      @default(now())
+//   updatedAt        DateTime      @updatedAt
+// }
+
