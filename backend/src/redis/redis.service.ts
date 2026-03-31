@@ -16,6 +16,26 @@ export class RedisService implements OnModuleInit, OnModuleDestroy{
         this.redisClient.disconnect();
     }
 
+    async hGetAll(
+        key: string,
+    ): Promise<any> {
+        await this.redisClient.hgetall(key)
+    }
+
+    async hSet(
+        key: string,
+        membership: string,
+    ): Promise<void> {
+        await this.redisClient.hset(key, membership)
+    }
+
+    async expire(
+        key: string,
+        ttlSeconds: number
+    ) {
+        await this.redisClient.expire(key, ttlSeconds);
+    }
+
     async setWithExpiry(
         key: string,
         value: string,

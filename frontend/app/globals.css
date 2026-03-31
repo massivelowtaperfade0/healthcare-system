@@ -8,6 +8,7 @@
   --card-hover: #ffffff;
   --card: #ffffff;
   --navbar: #d1daec; 
+  --secondary: #b6c5ec;
   --border: #e2e8f0;
 }
 
@@ -18,7 +19,8 @@
   --foreground: #f1f5f9;       
   --card-hover: #111827;
   --card: #111827;  
-  --navbar: #3f4555;           
+  --navbar: #283047;           
+  --secondary: #14172d;
   --border: #1f2937;
 }
 

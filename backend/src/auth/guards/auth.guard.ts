@@ -16,10 +16,11 @@ export class AuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<Request>();
 
-        // const token = this.extractTokenFromHeader(request);
+        const secondaryTokenRetrieval = this.extractTokenFromHeader(request);
         // const token = this.extractToken(request);
-        const token = request.cookies?.['access_token'];
-        console.log('TOKEN: ', token);
+        const primaryTokenRetrival = request.cookies?.['access_token'];
+
+        const token = primaryTokenRetrival ?? secondaryTokenRetrieval
 
         if (!token) {
             throw new UnauthorizedException('No token');
@@ -72,6 +73,10 @@ export class AuthGuard implements CanActivate {
         return true;
     }
 
+    private extractTokenFromHeader(request: Request): string | undefined {
+        const [type, token] = request.headers.authorization?.split(' ') ?? [];
+        return type === 'Bearer' ? token : undefined;
+    }
 }
 
 // console.log('--- JWT DEBUG START ---');
@@ -81,10 +86,6 @@ export class AuthGuard implements CanActivate {
 // console.log('Error Message:', err.message);
 // console.log('--- JWT DEBUG END ---');
 
-// private extractTokenFromHeader(request: Request): string | undefined {
-//     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-//     return type === 'Bearer' ? token : undefined;
-// }
 
 // private extractToken(request: Request): string | undefined {
 //     console.log('Cookies', request.cookies);

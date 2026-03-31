@@ -1,5 +1,6 @@
 'use client';
-import {Activity, BarChart, LogIn, UserCheck, Users} from 'lucide-react'
+import {Activity, BarChart, LogIn, UserCheck, Users, Link2} from 'lucide-react'
+
 
 type User = {
     email: string;
@@ -37,6 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user }) => {
         patient: [
             { name: 'My Records', icon: UserCheck, href: '/my-records' },
             { name: 'Appointments', icon: Activity, href: '/appointments' },
+            { name: 'Link Records', icon: Link2, href: '/join' },
             { name: 'Log Out', icon: LogIn, href: '/logout' },
         ],
     };
@@ -51,9 +53,9 @@ const Sidebar: React.FC<SidebarProps> = ({ user }) => {
 
         return (
             <div 
-            className="group sticky flex flex-col w-18 hover:w-56 transition-all duration-300 ease-in-out text-black h-screen p-4"
+            className="group sticky flex flex-col w-18 rounded-r-lg hover:w-56 transition-all duration-300 ease-in-out text-black h-200 p-4"
             style={{
-                backgroundColor: "var(--navbar)",
+                backgroundColor: "var(--secondary)",
                 color: "var(--foreground)",
                 borderColor: "var(--border)",
             }}
@@ -109,6 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user }) => {
                 </li>
                 ))}
             </ul>
+
             </div>
         );
 }

@@ -3,6 +3,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {  CircleUserRound, Moon, Sun } from "lucide-react";
 // import { fetchWithAuth } from '../../_lib/fetch_client'
 import { useAuth } from "@/app/_context/AuthContext";
 
@@ -33,7 +34,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="sticky top-0 z-50 border-b backdrop-blur-md transition-colors duration-300"
+      className="sticky top-0 z-50 backdrop-blur-md transition-colors duration-300"
       style={{
         backgroundColor: "var(--navbar)",
         borderColor: "var(--border)",
@@ -72,20 +73,22 @@ const Navbar = () => {
             onClick={() =>
               setTheme(currentTheme === "dark" ? "light" : "dark")
             }
-            style={{
-              backgroundColor: "var(--card)",
-              color: "var(--foreground)",
-              borderColor: "var(--border)",
-            }}
-            className="rounded-md border px-3 py-1 text-sm shadow-sm transition-colors duration-200"
+            // style={{
+            //   backgroundColor: "var(--card)",
+            //   color: "var(--foreground)",
+            //   borderColor: "var(--border)",
+            // }}
+            className="rounded-md px-3 py-1 text-sm transition-all duration-300 hover:scale-110"
           >
-            {currentTheme === "dark" ? "Light Mode" : "Dark Mode"}
+            {currentTheme === "dark" ? <Sun/> : <Moon/>}
           </button>
 
           {/* CTA Button */}
           {loading ? null : user ? (
-            <button>
-              Welcome, {user.email.split('@')[0]}
+            <button
+              className="transition-all duration-300 hover:scale-120 cursor-pointer"
+            >
+              <CircleUserRound />
             </button>
           ) : (
             <button

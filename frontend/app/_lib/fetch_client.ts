@@ -1,7 +1,7 @@
 
 export const fetchWithAuth = async (url: string, options: any = {}) => {
 
-  const activeOrgId = typeof window !== 'undefined' ? localStorage.getItem('activeOrgId') : null;
+  const activeOrgId = typeof window !== 'undefined' ? localStorage.getItem('x-org-id') : null;
 
   // 1. Default to GET and include credentials for Http-Only cookies
   const requestOptions = { 
@@ -9,8 +9,8 @@ export const fetchWithAuth = async (url: string, options: any = {}) => {
     ...options, 
     credentials: 'include' ,
     headers: {
-      ...options.headers,
       ...(activeOrgId && { 'x-org-id': activeOrgId}),
+      ...options.headers,
     }
   };
 

@@ -8,7 +8,7 @@ export class UserService {
         private prisma: PrismaService
     ) {}
 
-    async getMe(userId: string) {
+    async getMe(userId: string, requestedOrgId?: string) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
             select: {
@@ -31,7 +31,15 @@ export class UserService {
         if (!user) return null;
 
         // temporary
-        const active = user.memberships[0];
+        let active;
+
+        if (requestedOrgId) {
+            active = user.memberships.find(m => m.organizationId === requestedOrgId);
+        }
+
+        if(!active && user.memberships.length > 0) { 
+            active = user.memberships[0];
+        }
 
         return {
             id: user.id,
@@ -148,5 +156,46 @@ export class UserService {
         const failedLoginCount = membership.localFailedLogins
 
         return failedLoginCount;
+    }
+
+    async getAllStaff(
+        organizationId: string,
+        limit?: number
+    ) {
+        const staff = await this.prisma.membership.findMany({
+            where: {
+                organizationId,
+                role: {
+                    in: [UserRole.DOCTOR, UserRole.NURSE]
+                },
+            },
+            select: {
+                id: true,
+                userId: true,
+                user: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+
+                    },
+                },
+                status: true,
+                role: true,
+                statusChangedById: true,
+                statusChangeReason: true,
+            },
+            orderBy: {
+                activatedAt: 'desc'
+            },
+            take: Math.min(limit || 20, 20)
+        });
+
+        if (staff.length === 0) {
+            return {
+                message: "No staff added yet"
+            };
+        }
+
+        return staff;
     }
 }

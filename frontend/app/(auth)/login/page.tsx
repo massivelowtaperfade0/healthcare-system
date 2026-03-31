@@ -75,11 +75,14 @@ export default function Login() {
   const completeLogin = async (orgId: string) => {
     setLoading(true);
     try {
+
       // 1. Store the context globally for headers
-      localStorage.setItem("activeOrgId", orgId);
+      localStorage.setItem("x-org-id", orgId);
+
+      console.log(localStorage)
       
       // 2. Refetch user so the AuthContext/Guard gets the role for THIS specific org
-      await refetchUser(); 
+      await refetchUser(orgId); 
       
       // 3. Final redirect
       router.push("/dashboard");
