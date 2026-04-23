@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SetUpOrganizationDto } from './dto/setup.dto';
 import * as argon from 'argon2'
-import { MembershipStatus, UserRole } from 'src/generated/prisma/enums';
+import { MembershipStatus, UserRole } from '../generated/prisma/client';
 import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class RegisterService {
     constructor(
         private prisma: PrismaService,
         private auth: AuthService
-    ) {}
+    ) { }
 
     async setUpOrganization(dto: SetUpOrganizationDto) {
 

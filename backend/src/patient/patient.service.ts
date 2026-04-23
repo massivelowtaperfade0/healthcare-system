@@ -1,21 +1,21 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PatientDto } from './dto/patient.dto';
-import { EventType, MembershipStatus, UserRole } from 'src/generated/prisma/enums';
+import { EventType, MembershipStatus, UserRole } from '../generated/prisma/client';
 import { generatePUID } from 'src/common/puid-generator';
 
 @Injectable()
 export class PatientService {
     constructor(
         private prisma: PrismaService
-    ) {}
+    ) { }
 
     async addNewPatient(
-        dto: PatientDto, 
+        dto: PatientDto,
         doctorId: string,
         organizationId: string
     ) {
-        
+
         const membership = await this.prisma.membership.findUnique({
             select: {
                 id: true,
@@ -36,15 +36,15 @@ export class PatientService {
             }
         });
 
-        if (!membership || 
-            membership.role !== UserRole.DOCTOR || 
+        if (!membership ||
+            membership.role !== UserRole.DOCTOR ||
             membership.status !== MembershipStatus.ACTIVE
         ) {
             await this.prisma.activityLog.create({
                 data: {
                     userId: membership?.userId,
                     eventType: EventType.RECORD_WRITE_DENIED,
-                    metadata: { 
+                    metadata: {
                         reason: "Attempt to create new patient record by unauthorized user",
                         timeStamp: new Date(Date.now()).toISOString()
                     }
@@ -54,9 +54,9 @@ export class PatientService {
         }
 
         const orgPrefix = (membership.organization.name || "ORG")
-        .replace(/[^a-zA-Z]/g, '')
-        .substring(0, 3)
-        .toUpperCase();
+            .replace(/[^a-zA-Z]/g, '')
+            .substring(0, 3)
+            .toUpperCase();
 
         try {
             const puid = generatePUID(orgPrefix);
@@ -80,9 +80,9 @@ export class PatientService {
                         userId: doctorId, // The Doctor's User ID
                         organizationId: organizationId,
                         eventType: EventType.PATIENT_RECORD_CREATED,
-                        metadata: { 
+                        metadata: {
                             puid: patient.puid,
-                            patientId: patient.id 
+                            patientId: patient.id
                         }
                     }
                 });
@@ -111,7 +111,7 @@ export class PatientService {
                 role: true,
                 status: true,
                 userId: true,
-            }, 
+            },
             where: {
                 userId_organizationId: {
                     userId,
@@ -120,7 +120,7 @@ export class PatientService {
             }
         });
 
-        if (!membership || 
+        if (!membership ||
             membership.role !== (UserRole.DOCTOR || UserRole.NURSE) ||
             membership.status !== MembershipStatus.ACTIVE
         ) {
@@ -137,17 +137,17 @@ export class PatientService {
             throw new ForbiddenException("Only active doctors and nurse of this clinic can read patients records")
         }
 
-        const patients =  await this.prisma.patient.findMany({
-            where: {organizationId: organizationId},
+        const patients = await this.prisma.patient.findMany({
+            where: { organizationId: organizationId },
             take: Math.min(limit ?? 20, 100),
-            orderBy: { createdAt: 'desc'},
+            orderBy: { createdAt: 'desc' },
             select: {
                 id: true,
                 firstName: true,
                 lastName: true,
                 dateOfBirth: true,
                 organization: {
-                    select: { name: true}
+                    select: { name: true }
                 },
                 organizationId: true,
                 userId: true,

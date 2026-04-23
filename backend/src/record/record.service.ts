@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { EventType } from 'src/generated/prisma/enums';
+import { EventType } from '../generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RecordDto } from './dto/RecordDto';
 import { v4 as uuidv4 } from 'uuid'
@@ -16,7 +16,7 @@ export interface SoapContent {
 export class RecordService {
     constructor(
         private prisma: PrismaService,
-    ) {}
+    ) { }
 
     async addMedicalRecord(
         dto: RecordDto,
@@ -35,7 +35,7 @@ export class RecordService {
                 firstName: true,
                 lastName: true,
             }
-        });      
+        });
 
         if (!patient) {
             throw new NotFoundException('Patient not found in this organization');
@@ -48,7 +48,7 @@ export class RecordService {
             select: { id: true },
         });
 
-        if (!staff)  {
+        if (!staff) {
             throw new ForbiddenException("You do not have appropriate staff profile to create record")
         }
 
@@ -58,7 +58,7 @@ export class RecordService {
             // else set it to null
             const existing = dto.recordId
                 ? await tx.medicalRecord.findUnique({
-                    where: {id: dto.recordId},
+                    where: { id: dto.recordId },
                     select: {
                         id: true,
                         isLocked: true,
@@ -68,7 +68,7 @@ export class RecordService {
                 : null
 
 
-            if(existing) {
+            if (existing) {
                 if (existing.isLocked) {
                     await tx.activityLog.create({
                         data: {
@@ -85,7 +85,7 @@ export class RecordService {
                     throw new ForbiddenException("Cannot edit a locked medical record");
                 }
 
-                const updatedMedicalRecord =  await tx.medicalRecord.update({
+                const updatedMedicalRecord = await tx.medicalRecord.update({
                     where: { id: existing.id },
                     data: {
                         content: {
@@ -118,16 +118,16 @@ export class RecordService {
 
             let cleanContext = dto.initialContext || {};
 
-// If it's a string, we keep parsing it until it becomes a real object!
-while (typeof cleanContext === 'string') {
-    try {
-        cleanContext = JSON.parse(cleanContext);
-    } catch (e) {
-        // If it fails to parse, it wasn't valid JSON anyway
-        cleanContext = {};
-        break;
-    }
-}
+            // If it's a string, we keep parsing it until it becomes a real object!
+            while (typeof cleanContext === 'string') {
+                try {
+                    cleanContext = JSON.parse(cleanContext);
+                } catch (e) {
+                    // If it fails to parse, it wasn't valid JSON anyway
+                    cleanContext = {};
+                    break;
+                }
+            }
 
             // Merge manually. Do NOT use spread operators (...) on the cleanContext!
             const mergedContent = { ...template };
@@ -139,7 +139,7 @@ while (typeof cleanContext === 'string') {
 
             const mergeContent = Object.assign({}, template, cleanContext);
 
-            const newMedicalRecord =  await tx.medicalRecord.create({
+            const newMedicalRecord = await tx.medicalRecord.create({
                 data: {
                     id: fallbackId,
                     patientId: patient.id,

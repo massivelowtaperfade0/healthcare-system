@@ -19,6 +19,6 @@ export class DashboardController {
     @GetUser('sub') userId: string,
     @ActiveOrganization() organization: any,
   ) {
-    return this.dashboardService.faileLoginCount(userId, organization.orgId)
+    return this.dashboardService.failedLoginCount(userId, organization.orgId)
   }
 }

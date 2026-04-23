@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedExceptio
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { EventType } from "src/generated/prisma/enums";
+import { EventType } from "../../generated/prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AuthGuard implements CanActivate {
         private jwt: JwtService,
         private config: ConfigService,
         private prisma: PrismaService
-    ) {}
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<Request>();
@@ -32,18 +32,18 @@ export class AuthGuard implements CanActivate {
             });
 
             const session = await this.prisma.refreshToken.findUnique({
-                where: {id: payload.jti},
+                where: { id: payload.jti },
                 select: { revokedAt: true },
             });
 
             if (!session || session.revokedAt) {
 
                 const orgIds: string[] = payload.orgs || [];
-                const logData = orgIds.map( orgId => ({
+                const logData = orgIds.map(orgId => ({
                     userId: payload.sub,
                     organizationId: orgId,
                     eventType: EventType.AUTH_LOGIN_FAILED,
-                    metadata: {action: "Revoked token re-use detected"}
+                    metadata: { action: "Revoked token re-use detected" }
                 }));
 
                 if (logData.length > 0) {
@@ -53,7 +53,7 @@ export class AuthGuard implements CanActivate {
                         data: {
                             userId: payload.sub,
                             eventType: EventType.AUTH_LOGIN_FAILED,
-                            metadata: { reason: "Revoked token re-use - No Orgs"}
+                            metadata: { reason: "Revoked token re-use - No Orgs" }
                         }
                     })
                 }

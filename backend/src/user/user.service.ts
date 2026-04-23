@@ -1,12 +1,12 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { EventType, MembershipStatus, UserRole } from 'src/generated/prisma/enums';
+import { EventType, MembershipStatus, UserRole } from '../generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
     constructor(
         private prisma: PrismaService
-    ) {}
+    ) { }
 
     async getMe(userId: string, requestedOrgId?: string) {
         const user = await this.prisma.user.findUnique({
@@ -15,11 +15,11 @@ export class UserService {
                 id: true,
                 email: true,
                 memberships: {
-                    where: { status: MembershipStatus.ACTIVE},
+                    where: { status: MembershipStatus.ACTIVE },
                     include: {
                         organization: {
                             select: {
-                                name: true, 
+                                name: true,
                                 id: true,
                             }
                         }
@@ -37,7 +37,7 @@ export class UserService {
             active = user.memberships.find(m => m.organizationId === requestedOrgId);
         }
 
-        if(!active && user.memberships.length > 0) { 
+        if (!active && user.memberships.length > 0) {
             active = user.memberships[0];
         }
 
@@ -102,7 +102,7 @@ export class UserService {
                 userAgent: true,
                 ip: true,
                 userId: true,
-                user: { select: {email: true} },
+                user: { select: { email: true } },
                 metadata: true,
                 eventType: true,
                 createdAt: true

@@ -1,5 +1,4 @@
-import { UserRole } from "src/generated/prisma/enums";
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from 'class-validator';
 
 export class AdminDto {
 
@@ -22,8 +21,6 @@ export class AdminDto {
     @IsNotEmpty()
     @IsString()
     organization: string
-
-    // @IsNotEmpty()
     // @IsEnum(UserRole)
     // role: UserRole
 }

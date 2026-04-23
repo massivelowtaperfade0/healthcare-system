@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
-import { EventType, MembershipStatus, UserRole } from 'src/generated/prisma/enums';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client'; 
+import { UserRole, EventType, MembershipStatus } from '../generated/prisma/client';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config'
@@ -20,7 +20,7 @@ export class AuthService {
         private config: ConfigService,
         private redis: RedisService,
         private jwt: JwtService
-    ) {}
+    ) { }
 
     async validateRefreshTokens(refreshToken: string) {
         let payload: any;
@@ -61,8 +61,8 @@ export class AuthService {
                 data: {
                     userId: user.id,
                     eventType: EventType.SECURITY_ANOMALY_DETECTED,
-                    metadata: { 
-                        reason: "Invalid Refresh Tokens detected", 
+                    metadata: {
+                        reason: "Invalid Refresh Tokens detected",
                         timeStamp: new Date(Date.now()).toISOString()
                     }
                 }
@@ -70,8 +70,8 @@ export class AuthService {
             throw new ForbiddenException("Access Denied");
         }
 
-        return await this.prisma.$transaction( async (tx) => {
-            
+        return await this.prisma.$transaction(async (tx) => {
+
             await this.prisma.refreshToken.update({
                 where: {
                     id: validToken.id,
@@ -82,8 +82,8 @@ export class AuthService {
             });
 
             const newTokens = await this.signToken(
-                user.id, 
-                payload.email, 
+                user.id,
+                payload.email,
                 payload.memberships
             )
 
@@ -92,16 +92,16 @@ export class AuthService {
             return newTokens;
         })
     }
-        
 
-    async signToken (
+
+    async signToken(
         userId: string,
         email: string,
         memberships: any[]
     ) {
         const jti = uuidv4();
         const orgs = memberships.map(m => m.organizationId)
-        
+
         const accessTokenPayload = {
             sub: userId,
             email,
@@ -117,23 +117,23 @@ export class AuthService {
 
         const accessToken = await this.jwt.signAsync(
             accessTokenPayload, {
-                expiresIn: '15m',
-                secret: this.config.get('ACCESS_TOKEN') ,
-            }
+            expiresIn: '15m',
+            secret: this.config.get('ACCESS_TOKEN'),
+        }
         )
 
         const refreshToken = await this.jwt.signAsync(
             refreshTokenPayload, {
-                expiresIn: '7d',
-                secret: this.config.get('REFRESH_TOKEN'),
-            }
+            expiresIn: '7d',
+            secret: this.config.get('REFRESH_TOKEN'),
+        }
         )
 
         return {
             accessToken: accessToken,
             refreshToken: refreshToken,
             jti: jti,
-        };        
+        };
     }
 
     async saveRefreshToken(userId: string, jti: string, refreshToken: string, tx?: any) {
@@ -155,14 +155,14 @@ export class AuthService {
     }
 
     // only non-admin users or patients only
-    async userSignUp (
+    async userSignUp(
         dto: RegisterDto,
     ) {
         const FloatId = this.config.get('FLOAT_ID');
         const hash = await argon.hash(dto.password)
 
         try {
-            const userAction = await this.prisma.$transaction( async (tx) => {
+            const userAction = await this.prisma.$transaction(async (tx) => {
                 const user = await tx.user.create({
                     data: {
                         email: dto.email,
@@ -191,13 +191,18 @@ export class AuthService {
                     select: { id: true }
                 })
 
-                return {user, membership}
-            })
+                return { user, membership }
+            },
+                {
+                    maxWait: 5000,
+                    timeout: 10000,
+                }
+            )
 
             const tokens = await this.signToken(
                 userAction.user.id,
                 userAction.user.email,
-                [{organizationId: FloatId}],
+                [{ organizationId: FloatId }],
             );
 
             await this.saveRefreshToken(userAction.user.id, tokens.jti, tokens.refreshToken)
@@ -216,7 +221,7 @@ export class AuthService {
     // only admin can create this
     // Problem - 15 Mar, 2026
     // if an admin tries to register,an already registered doctor in another org, as part of their org, 'create' will throw error P2002
-    async staffSignUp (
+    async staffSignUp(
         dto: CreateStaffDto,
         adminId: string, // admin id
         organizationId: string
@@ -235,8 +240,8 @@ export class AuthService {
             }
         });
 
-        if (!adminMembership 
-            || adminMembership.role !== UserRole.ADMIN 
+        if (!adminMembership
+            || adminMembership.role !== UserRole.ADMIN
             || adminMembership.status !== MembershipStatus.ACTIVE
         ) {
             throw new ForbiddenException("You do not have permission to add staff to this organization");
@@ -250,9 +255,9 @@ export class AuthService {
         const hash = await argon.hash(dto.password);
 
         return await this.prisma.$transaction(async (tx) => {
-            
+
             const user = await tx.user.upsert({
-                where: {email: dto.email},
+                where: { email: dto.email },
                 update: {},
                 create: {
                     email: dto.email,
@@ -306,7 +311,7 @@ export class AuthService {
     async login(dto: LoginDto) {
         // find user by email
         const user = await this.prisma.user.findUnique({
-            where: { 
+            where: {
                 email: dto.email,
             },
             select: {
@@ -353,7 +358,7 @@ export class AuthService {
             await this.prisma.$transaction(async (tx) => {
                 const updatedUser = await tx.user.update({
                     where: { id: user.id },
-                    data: { failedLoginCount: { increment: 1 }}
+                    data: { failedLoginCount: { increment: 1 } }
                 });
 
                 if (updatedUser.failedLoginCount >= 5) {
@@ -395,9 +400,9 @@ export class AuthService {
             throw new ForbiddenException("Access Denied: Account Inactive");
         }
 
-        return await this.prisma.$transaction( async (tx) => {
+        return await this.prisma.$transaction(async (tx) => {
             await tx.user.update({
-                where: {id: user.id},
+                where: { id: user.id },
                 data: { failedLoginCount: 0, lockUntil: null }
             });
             const tokens = await this.signToken(
@@ -437,14 +442,14 @@ export class AuthService {
         return await this.prisma.$transaction(async (tx) => {
             // 1. Get all active tokens for this user
             const token = await tx.refreshToken.updateMany({
-            where: { 
-                id: jti,
-                userId: userId,
-                revokedAt: null,
-             },
-             data: {
-                revokedAt: new Date(),
-             }
+                where: {
+                    id: jti,
+                    userId: userId,
+                    revokedAt: null,
+                },
+                data: {
+                    revokedAt: new Date(),
+                }
             });
 
             if (!token) {
@@ -453,11 +458,11 @@ export class AuthService {
 
             // 4. Audit Log
             await tx.activityLog.create({
-            data: {
-                userId,
-                eventType: 'AUTH_LOGOUT',
-                metadata: { action: "User logged out" }
-            }
+                data: {
+                    userId,
+                    eventType: 'AUTH_LOGOUT',
+                    metadata: { action: "User logged out" }
+                }
             });
         });
     }
@@ -467,7 +472,7 @@ export class AuthService {
         dto: CreateClaimDto,
         currentUserId: string,
     ) {
-        const result = await this.prisma.$transaction( async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
 
             const organization = await tx.organization.findUnique({
                 where: {
@@ -488,7 +493,7 @@ export class AuthService {
                 where: {
                     puid_organizationId: {
                         // puid actually
-                        puid: dto.patientId,       
+                        puid: dto.patientId,
                         organizationId: organization.id,
                     }
                 },
@@ -548,17 +553,17 @@ export class AuthService {
         currentUserId: string,
     ) {
         const organization = await this.prisma.organization.findUnique({
-            where: { name: dto.organizationName},
+            where: { name: dto.organizationName },
             select: { id: true },
         });
-        console.log("organization: ",organization);
+        console.log("organization: ", organization);
 
         if (!organization) {
             throw new ForbiddenException("Invalid request");
         }
 
         const patient = await this.prisma.patient.findUnique({
-            where: { 
+            where: {
                 puid_organizationId: {
                     puid: dto.patientId,
                     organizationId: organization.id
@@ -576,7 +581,7 @@ export class AuthService {
         }
 
         const redisKey = `otp:patient:${patient.id}`;
-        
+
         const storedHash = await this.redis.get(redisKey);
         if (!storedHash) {
             throw new ForbiddenException("OTP has expired or does not exist.");
@@ -590,7 +595,7 @@ export class AuthService {
 
         console.log(redisKey, storedHash, dto.claimCode, incomingHash);
 
-        await this.prisma.$transaction( async (tx) => {
+        await this.prisma.$transaction(async (tx) => {
             // link user to patient (patient => userId)
             const patientCheck = await tx.patient.findUnique({
                 where: { id: patient.id },
@@ -641,5 +646,5 @@ export class AuthService {
             message: "Account successfully linked!"
         };
     }
-       
+
 }

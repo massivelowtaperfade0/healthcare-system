@@ -5,7 +5,7 @@
 // step 4: if all above conditions are true than create a new Organization Context
 
 import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
-import { EventType, MembershipStatus } from "src/generated/prisma/enums";
+import { EventType, MembershipStatus } from "../../generated/prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { RedisService } from "src/redis/redis.service";
 
@@ -14,7 +14,7 @@ export class OrganizationGuard implements CanActivate {
     constructor(
         private prisma: PrismaService,
         private redis: RedisService
-    ) {}
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
 
@@ -82,31 +82,6 @@ export class OrganizationGuard implements CanActivate {
 
         }
 
-        // const membership = await this.prisma.membership.findUnique({
-        //     where: {
-        //         userId_organizationId: {
-        //             userId: user.sub,
-        //             organizationId: targetOrgId,
-        //         },
-        //     },
-        //     select: { role: true, status: true }
-        // });
-
-        // if (!membership || membership.status !== MembershipStatus.ACTIVE) {
-        //     await this.prisma.activityLog.create({
-        //         data: {
-        //             userId: user.sub,
-        //             organizationId: targetOrgId,
-        //             eventType: EventType.PE_VIOLATION_VERTICAL,
-        //             metadata: {
-        //                 action: "Attempt to spoof organization request as an inactive user",
-        //                 attemptedOrgId: targetOrgId,
-        //                 timeStamp: new Date(Date.now()).toISOString()
-        //             }
-        //         }
-        //     });
-        //     throw new ForbiddenException('Access denied to this organization');
-        // }
 
         // step 4
         request.organizationContext = {
@@ -124,5 +99,30 @@ export class OrganizationGuard implements CanActivate {
             message,
         }
     }
-    
+
 }
+// const membership = await this.prisma.membership.findUnique({
+//     where: {
+//         userId_organizationId: {
+//             userId: user.sub,
+//             organizationId: targetOrgId,
+//         },
+//     },
+//     select: { role: true, status: true }
+// });
+
+// if (!membership || membership.status !== MembershipStatus.ACTIVE) {
+//     await this.prisma.activityLog.create({
+//         data: {
+//             userId: user.sub,
+//             organizationId: targetOrgId,
+//             eventType: EventType.PE_VIOLATION_VERTICAL,
+//             metadata: {
+//                 action: "Attempt to spoof organization request as an inactive user",
+//                 attemptedOrgId: targetOrgId,
+//                 timeStamp: new Date(Date.now()).toISOString()
+//             }
+//         }
+//     });
+//     throw new ForbiddenException('Access denied to this organization');
+// }

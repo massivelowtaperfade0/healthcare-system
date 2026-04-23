@@ -9,6 +9,10 @@ generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
   moduleFormat = "cjs"
+  // engineType    = "binary"
+  // docker image too big, due to support for mutipel OS
+  // specify linux so prisma does not include engine binary fpor all os
+  binaryTargets = [ "native", "linux-musl-openssl-3.0.x" ]
 }
 
 datasource db {

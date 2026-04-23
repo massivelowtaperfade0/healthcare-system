@@ -7,7 +7,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy{
 
     onModuleInit() {
         this.redisClient = new Redis({
-            host: 'localhost',
+            host: 'redis', // use localhost if not using docker
             port: 6379,
         });
     }
@@ -19,7 +19,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy{
     async hGetAll(
         key: string,
     ): Promise<any> {
-        await this.redisClient.hgetall(key)
+        return await this.redisClient.hgetall(key)
     }
 
     async hSet(

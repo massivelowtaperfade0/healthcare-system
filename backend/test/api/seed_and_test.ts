@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../../src/generated/prisma/client';
+import { PrismaClient } from '/generated/prisma/client';
 import { UserRole, MembershipStatus } from 'src/generated/prisma/enums';
 
 const prisma = new PrismaClient(

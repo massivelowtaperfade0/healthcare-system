@@ -7,7 +7,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ROLES_KEY } from "src/common/decorators/roles.decorator";
-import { EventType, UserRole } from "src/generated/prisma/enums";
+import { EventType, UserRole } from "../../generated/prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -15,14 +15,14 @@ export class RoleGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
         private prisma: PrismaService
-    ) {}
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const requireRoles = this.reflector.getAllAndOverride<UserRole[]>(
             ROLES_KEY, [
-                context.getHandler(),
-                context.getClass(),
-            ]
+            context.getHandler(),
+            context.getClass(),
+        ]
         );
 
         // if no roles are defined on route, let it pass
