@@ -1,7 +1,7 @@
 'use server'
 import { cookies } from "next/headers"
 
-export async function fetchAllActiveStaff(activeOrgId: string) {
+export async function fetchStaff(activeOrgId: string) {
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value
 

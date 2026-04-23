@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useAuth } from "../_context/AuthContext";
 import { useRouter } from "next/navigation";
+import Sidebar from "./_components/Sidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -31,5 +32,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   // Only render children if user is an object
-  return <>{children}</>;
+  // return <>{children}</>;
+
+  return (
+    <div className="flex h-200">
+      <Sidebar user={user}/>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
+      </div>
+
+    </div>
+  )
 }

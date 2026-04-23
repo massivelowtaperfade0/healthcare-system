@@ -1,8 +1,14 @@
 'use client';
 import { useState } from "react"
 
-export default function ActivityList({ initialData }) {
-    const [activity, setActivity] = useState(initialData);
+type ActivityItem = {
+    eventType: string;
+    createdAt: string;
+    ip: string;
+}
+
+export default function ActivityList({ initialData }: {initialData: ActivityItem[]}) {
+    const [activity, setActivity] = useState<ActivityItem[]>(initialData);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

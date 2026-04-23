@@ -39,12 +39,12 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="flex">
-      <Sidebar user={user} />
-      <div className="p-10 flex-1">
-        <h1 className="text-4xl mb-5">Dashboard</h1>
+    // <div className="flex">
+    //   <Sidebar user={user} />
+      // <div className="p-10 flex-1">
+      //   <h1 className="text-4xl mb-5">Dashboard</h1>
         <DashboardComponent />
-      </div>
-    </div>
+      // </div>
+    // </div>
   );
 }

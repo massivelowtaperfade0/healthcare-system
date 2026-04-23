@@ -1,9 +1,10 @@
 'use client';
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-const Admin = () => {
+// remove all console logs after beduggiung
+const AdminForm = () => {
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -103,7 +104,7 @@ const Admin = () => {
   
           {/* Sign Up Button */}
           <button
-            onClick={handleSignUp}
+            onSubmit={handleSignUp}
             disabled={loading}
             className="w-full py-3 rounded-lg font-semibold transition bg-blue-600 text-white"
           >
@@ -125,4 +126,15 @@ const Admin = () => {
     );
 }
 
-export default Admin
+export default function AdminPage() {
+  return (
+    <div
+      className="flex items-center justify-center min-h-screen px-4"
+      style={{ backgroundColor: "var(--background)", color: "var(--foreground)",}}
+    >
+      <Suspense fallback={<div className="text-white">Loadind form....</div>}>
+        <AdminForm />
+      </Suspense>
+    </div>
+  )
+}
