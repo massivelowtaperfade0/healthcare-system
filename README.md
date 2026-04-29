@@ -201,7 +201,6 @@ sequenceDiagram
         API->>API: argon.verify(hash, password)
         
         alt Password Mismatch
-            rect rgb(240, 200, 200)
             API->>DB: Transaction: Increment failedLoginCount
             opt count >= 5
                 API->>DB: Set lockUntil (15 mins)
