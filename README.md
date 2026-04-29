@@ -207,7 +207,6 @@ sequenceDiagram
             end
             API->>Log: create (AUTH_LOGIN_FAILED, "Invalid Password")
             API-->>User: 403 Forbidden
-            end
             
         else Password Matches
             alt No Memberships & No Patient Profile
