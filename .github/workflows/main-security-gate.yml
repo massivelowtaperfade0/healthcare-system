@@ -1,0 +1,70 @@
+name: Healthcare-System-CI
+
+on: 
+  push:
+    branches: [ main ]
+  pull_request: 
+    branches: [ main ]
+
+jobs:
+  # Job no. 1: Code Quality
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install & Validate Backend
+        working-directory: ./backend
+        run: 
+          npm ci
+          npm prisma validate
+          npm run lint
+
+      - name: Install & Validate Frontend
+        working-directory: ./frontend
+        run: 
+          npm ci
+          npm run lint
+          
+  # Job no. 2: Security AUdit
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secret Scanning
+        uses: gitleaks/gitleaks-actions@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Backend Vulnerability Audit
+        working-directory: ./backend
+        run: npm audit --audit-level=high
+
+  # Job no. 3: Build & Container scan
+  container-build:
+    needs: [quality-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Backend Image
+        run: | 
+          docker build -t healthcare-backend:test \
+          -f ./backend/Dockerfile \
+          --target runner .
+          
+      - name: Scan Backend Image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'healthcare-backend:test'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      - name: Build Frontend Image
+        run: |
+          docker build -t healthcare-frontend:test \
+          -f ./frontend/Dockerfile .
