@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Install & Validate Backend
         working-directory: ./backend
