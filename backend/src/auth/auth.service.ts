@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client'; 
-import { UserRole, EventType, MembershipStatus } from '../generated/prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { UserRole, EventType, MembershipStatus } from '@prisma/client';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config'
@@ -158,7 +158,11 @@ export class AuthService {
     async userSignUp(
         dto: RegisterDto,
     ) {
-        const FloatId = this.config.get('FLOAT_ID');
+        const FloatId = process.env.FLOAT_ID
+
+        if (!FloatId) {
+            throw new Error('FLOAT_ID is missing in environment');
+        }
         const hash = await argon.hash(dto.password)
 
         try {

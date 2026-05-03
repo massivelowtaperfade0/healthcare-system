@@ -6,8 +6,8 @@
 
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
   moduleFormat = "cjs"
   // engineType    = "binary"
   // docker image too big, due to support for mutipel OS

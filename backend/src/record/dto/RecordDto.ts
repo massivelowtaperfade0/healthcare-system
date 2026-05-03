@@ -1,5 +1,5 @@
 import { IsEnum, IsJSON, IsNotEmpty, IsObject, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
-import { RecordType } from "src/generated/prisma/enums";
+import { RecordType } from "@prisma/client";
 import { Type } from 'class-transformer';
 import type { SoapContent } from "../record.service";
 

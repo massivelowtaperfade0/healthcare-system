@@ -5,7 +5,7 @@
 // step 4: if all above conditions are true than create a new Organization Context
 
 import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
-import { EventType, MembershipStatus } from "../../generated/prisma/client";
+import { EventType, MembershipStatus } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { RedisService } from "src/redis/redis.service";
 

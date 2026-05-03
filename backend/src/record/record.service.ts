@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { EventType } from '../generated/prisma/client';
+import { EventType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RecordDto } from './dto/RecordDto';
 import { v4 as uuidv4 } from 'uuid'

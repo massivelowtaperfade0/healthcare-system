@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { EventType, MembershipStatus, UserRole } from '../generated/prisma/client';
+import { UserRole, EventType, MembershipStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

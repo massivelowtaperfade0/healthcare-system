@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SetUpOrganizationDto } from './dto/setup.dto';
 import * as argon from 'argon2'
-import { MembershipStatus, UserRole } from '../generated/prisma/client';
+import { MembershipStatus, UserRole } from '@prisma/client';
 import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()

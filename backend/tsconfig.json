@@ -13,10 +13,10 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "paths": {
-      "@prisma/client": ["src/generated/prisma/client"],
-      "@prisma/client/*": ["src/generated/prisma/client/*"]
-    },
+    // "paths": {
+    //   "@prisma/client": ["src/generated/prisma/client"],
+    //   "@prisma/client/*": ["src/generated/prisma/client/*"]
+    // },
     "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -24,5 +24,6 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*.ts", "prisma/**/*.ts", "src/generated/prisma"]
 }

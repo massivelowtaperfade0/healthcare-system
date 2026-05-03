@@ -1,7 +1,7 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PatientDto } from './dto/patient.dto';
-import { EventType, MembershipStatus, UserRole } from '../generated/prisma/client';
+import { EventType, MembershipStatus, UserRole } from '@prisma/client';
 import { generatePUID } from 'src/common/puid-generator';
 
 @Injectable()

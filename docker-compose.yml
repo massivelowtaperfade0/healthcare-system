@@ -21,6 +21,10 @@ services:
       - "5000:5000"
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=public
+      - FLOAT_ID=${FLOAT_ID}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - REFRESH_TOKEN=${REFRESH_TOKEN}
+
     deploy:
       resources:
         limits:
@@ -35,6 +39,20 @@ services:
         condition: service_started
     command: node dist/main.js
     restart: unless-stopped
+    
+  db-seed:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+      target: builder
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=public
+      - FLOAT_ID=${FLOAT_ID}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed"
+    restart: "no"
 
 
   postgres:

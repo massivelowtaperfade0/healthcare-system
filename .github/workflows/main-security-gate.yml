@@ -19,14 +19,15 @@ jobs:
 
       - name: Install & Validate Backend
         working-directory: ./backend
-        run: 
+        run: |
           npm ci
-          npm prisma validate
+          npx prisma validate
           npm run lint
+          npx tsc --noEmit
 
       - name: Install & Validate Frontend
         working-directory: ./frontend
-        run: 
+        run: |
           npm ci
           npm run lint
           
@@ -36,17 +37,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Secret Scanning
+      - name: Scan Secrets
         uses: gitleaks/gitleaks-actions@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Backend Vulnerability Audit
-        working-directory: ./backend
-        run: npm audit --audit-level=high
+      - name: Vulnerability Audit
+        run: |
+          cd backend && npm audit --audit-level=high
+          cd ../frontend && npm audit --audit-level=high
 
   # Job no. 3: Build & Container scan
   container-build:
-    needs: [quality-check]
+    needs: [quality-check, security-audit]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +57,7 @@ jobs:
         run: | 
           docker build -t healthcare-backend:test \
           -f ./backend/Dockerfile \
-          --target runner .
+          --target runner ./backend
           
       - name: Scan Backend Image (Trivy)
         uses: aquasecurity/trivy-action@master
@@ -67,4 +69,11 @@ jobs:
       - name: Build Frontend Image
         run: |
           docker build -t healthcare-frontend:test \
-          -f ./frontend/Dockerfile .
+          -f ./frontend/Dockerfile ./frontend
+
+      - name: Scan Frontend Image (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with: 
+          image-ref: 'healthcare-frontend:test'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
