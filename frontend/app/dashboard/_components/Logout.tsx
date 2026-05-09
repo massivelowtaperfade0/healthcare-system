@@ -14,9 +14,9 @@ export const useLogout = () => {
 
         setIsLoggingOut(true);
         try {
-            await fetch("http://localhost:5000/auth/logout", {
+            await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/logout`, {
                 method: "POST",
-                credentials: 'include',                             
+                credentials: 'include',
             });
         } catch (error) {
             console.log("Logout failed: ", error);

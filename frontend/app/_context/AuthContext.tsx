@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadUser = async (explicitOrgId? : string) => {
+  const loadUser = async (explicitOrgId?: string) => {
     setLoading(true); // Ensure loading is true if refetching
     try {
 
@@ -42,15 +42,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (orgId) {
         headers["x-org-id"] = orgId;
       }
-      const res = await fetchWithAuth("http://localhost:5000/user/me", {
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_GATEWAY}/user/me`, {
         method: "GET",
         headers: headers,
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         // Ensure data.user exists based on your backend response structure
-        setUser(data.user || data); 
+        setUser(data.user || data);
       } else {
         setUser(null);
       }
@@ -64,9 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetchWithAuth("http://localhost:5000/auth/logout");
+      await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/logout`);
     } catch (error) {
-      console.error("Logout Failed",error);
+      console.error("Logout Failed", error);
     } finally {
       setUser(null);
       window.location.href = '/'
@@ -78,11 +78,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-      <AuthContext.Provider value={{ user, setUser, loading, refetchUser: loadUser, logout }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
+    <AuthContext.Provider value={{ user, setUser, loading, refetchUser: loadUser, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
 export function useAuth() {
   const context = useContext(AuthContext);

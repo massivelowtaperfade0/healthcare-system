@@ -92,8 +92,8 @@ const OrganizationForm = ({ onNext }: { onNext: () => void }) => {
 
                 {/* Sign Up Button */}
                 <button
-                    type="submit"
-                    onClick={onNext}
+                    type="button"
+                    onClick={handleNext}
                     className="w-full py-3 rounded-lg font-semibold transition bg-blue-600 text-white"
                 >
                     Continue to Admin Setup

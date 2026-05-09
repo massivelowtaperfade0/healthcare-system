@@ -16,12 +16,12 @@ const AdminForm = ({ onBack, onSubmit, loading }: AdminFormProps) => {
         updateData({ [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+        console.log("Clicked")
         setLocalError("");
 
         // 1. Final Validation
-        if (!formData.firstName || !formData.lastName || !formData.password) {
+        if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
             setLocalError("All fields are required.");
             return;
         }
@@ -35,7 +35,8 @@ const AdminForm = ({ onBack, onSubmit, loading }: AdminFormProps) => {
         try {
             await onSubmit();
         } catch (err) {
-            setLocalError("Failed to create account. Email might already be in use.");
+            console.log(err);
+            setLocalError("Failed to create account.");
         }
     };
 
@@ -48,7 +49,7 @@ const AdminForm = ({ onBack, onSubmit, loading }: AdminFormProps) => {
                 <p className="mt-2 text-gray-500">Step 2: Create the primary administrator</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
                 <input
                     name="firstName"
                     placeholder="First Name"
@@ -99,14 +100,15 @@ const AdminForm = ({ onBack, onSubmit, loading }: AdminFormProps) => {
                         Back
                     </button>
                     <button
-                        type="submit"
+                        type="button"
+                        onClick={() => handleSubmit()}
                         disabled={loading}
                         className="w-2/3 py-3 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition"
                     >
                         {loading ? "Creating System..." : "Complete Setup"}
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     );
 };

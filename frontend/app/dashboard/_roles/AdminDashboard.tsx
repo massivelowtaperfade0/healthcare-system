@@ -12,7 +12,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     async function fetchOverview() {
-      const res = await fetchWithAuth("http://localhost:5000/dashboard/summary");
+      const res = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_GATEWAY}/dashboard/summary`);
       if (res.ok) {
         const data = await res.json();
         setStats(data);
@@ -23,21 +23,21 @@ const AdminDashboard = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <SummaryCard 
+      <SummaryCard
         title="Security Alerts"
         value={stats.failedLogins}
         icon="ShieldAlert"
         href="/dashboard/security"
       />
 
-      <SummaryCard 
+      <SummaryCard
         title="Staff Members"
         value={stats.activeStaff}
         icon="Users"
         href="/dashboard/staff"
       />
 
-      <SummaryCard 
+      <SummaryCard
         title="Pending Invoices"
         value={stats.pendingBills}
         icon="CreditCard"

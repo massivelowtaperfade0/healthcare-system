@@ -19,7 +19,7 @@ export async function createClaimAction(
         }
     }
     try {
-        const res = await fetch('http://localhost:5000/auth/create-claim', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/create-claim`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -66,12 +66,12 @@ export async function verifyClaimAction(
         }
     }
     try {
-        const res = await fetch('http://localhost:5000/auth/verify-claim', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/verify-claim`, {
             method: "POST",
             headers: {
-                 "Content-Type": "application/json",
+                "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
-             },
+            },
             body: JSON.stringify(payload),
             credentials: 'include',
         });
@@ -79,8 +79,8 @@ export async function verifyClaimAction(
         const data = await res.json();
 
         if (!res.ok) {
-            return { 
-                success: false, 
+            return {
+                success: false,
                 message: data.message || "Failed to verify OTP"
             }
         }

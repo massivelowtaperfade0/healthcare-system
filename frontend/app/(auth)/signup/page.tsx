@@ -16,7 +16,7 @@ export default function SignUp() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/auth/signup", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/signup`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -30,7 +30,7 @@ export default function SignUp() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/login");
     } catch {
       setError("Network error, is backend running?");
     } finally {
@@ -84,16 +84,6 @@ export default function SignUp() {
           className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 transition"
           style={{ backgroundColor: "var(--background)", color: "var(--foreground)", borderColor: "var(--border)" }}
         />
-
-        {/* Organization
-        <input
-          type="text"
-          placeholder="Organization"
-          value={organization}
-          onChange={(e) => setOrganization(e.target.value)}
-          className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 transition"
-          style={{ backgroundColor: "var(--background)", color: "var(--foreground)", borderColor: "var(--border)" }}
-        /> */}
 
         {/* Password */}
         <input

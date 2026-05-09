@@ -4,12 +4,12 @@ export const fetchWithAuth = async (url: string, options: any = {}) => {
   const activeOrgId = typeof window !== 'undefined' ? localStorage.getItem('x-org-id') : null;
 
   // 1. Default to GET and include credentials for Http-Only cookies
-  const requestOptions = { 
+  const requestOptions = {
     method: 'GET', // Default method
-    ...options, 
-    credentials: 'include' ,
+    ...options,
+    credentials: 'include',
     headers: {
-      ...(activeOrgId && { 'x-org-id': activeOrgId}),
+      ...(activeOrgId && { 'x-org-id': activeOrgId }),
       ...options.headers,
     }
   };
@@ -35,7 +35,7 @@ export const fetchWithAuth = async (url: string, options: any = {}) => {
       try { data = JSON.parse(rawText); } catch { data = {}; }
 
       if (data.message === 'Token expired') {
-        const refreshRes = await fetch("http://localhost:5000/auth/refresh", {
+        const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/refresh`, {
           method: 'POST',
           credentials: 'include',
         });
@@ -48,6 +48,6 @@ export const fetchWithAuth = async (url: string, options: any = {}) => {
     return response;
   } catch (err) {
     console.error("Network or Auth Error:", err);
-    throw err; 
+    throw err;
   }
 };

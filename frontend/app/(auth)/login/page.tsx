@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/_context/AuthContext";
 import GuestGuard from "@/app/_components/GuestGuard";
 
+
 interface Organization {
   id: string;
   name: string;
@@ -15,13 +16,13 @@ export default function Login() {
   const { refetchUser } = useAuth();
 
   // Phase State
-  const [phase, setPhase] = useState<1 | 2>(1); 
+  const [phase, setPhase] = useState<1 | 2>(1);
   const [availableOrgs, setAvailableOrgs] = useState<Organization[]>([]);
 
   // Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   // UI State
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/auth/login", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -80,10 +81,10 @@ export default function Login() {
       localStorage.setItem("x-org-id", orgId);
 
       console.log(localStorage)
-      
+
       // 2. Refetch user so the AuthContext/Guard gets the role for THIS specific org
-      await refetchUser(orgId); 
-      
+      await refetchUser(orgId);
+
       // 3. Final redirect
       router.push("/dashboard");
     } catch (err) {
@@ -109,8 +110,8 @@ export default function Login() {
               {phase === 1 ? "Log In" : "Select Organization"}
             </h1>
             <p className="mt-2 text-gray-500">
-              {phase === 1 
-                ? "Your privacy is our responsibility" 
+              {phase === 1
+                ? "Your privacy is our responsibility"
                 : "Choose the facility you want to access"}
             </p>
           </div>
@@ -136,7 +137,7 @@ export default function Login() {
                 className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 transition"
                 style={{ backgroundColor: "var(--background)", borderColor: "var(--border)" }}
               />
-              
+
               {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
 
               <button
@@ -168,8 +169,8 @@ export default function Login() {
                   </div>
                 </button>
               ))}
-              
-              <button 
+
+              <button
                 onClick={() => setPhase(1)}
                 className="w-full text-center text-sm text-gray-500 hover:underline pt-4"
               >

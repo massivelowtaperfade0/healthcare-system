@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react"
+import { useState } from "react";
 
 type ActivityItem = {
     eventType: string;
@@ -7,7 +7,7 @@ type ActivityItem = {
     ip: string;
 }
 
-export default function ActivityList({ initialData }: {initialData: ActivityItem[]}) {
+export default function ActivityList({ initialData }: { initialData: ActivityItem[] }) {
     const [activity, setActivity] = useState<ActivityItem[]>(initialData);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -15,7 +15,7 @@ export default function ActivityList({ initialData }: {initialData: ActivityItem
     const refetchActivity = async () => {
         try {
             setLoading(true);
-            const res = await fetch("http://localhost:5000/user/activity", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/user/activity`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -23,14 +23,14 @@ export default function ActivityList({ initialData }: {initialData: ActivityItem
 
             if (!res.ok) throw new Error(data.message || "Failed to fetch");
             setActivity(data);
-        } catch (err:any) {
+        } catch (err: any) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
     }
 
-    return(
+    return (
         <div>
             {loading && <p>Loading Activities</p>}
             {error && <p className="text-red-500">{error}</p>}
